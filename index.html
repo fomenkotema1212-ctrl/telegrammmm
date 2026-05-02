@@ -2,8 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎤 TGMessenger — Текст + Кружки</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🔥 TGMessenger</title>
+    <link rel="manifest" href="manifest.json">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -12,41 +13,43 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             background: #0e0e10;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
+        /* Авторизация */
         .auth-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1f1f2f 0%, #0a0a0f 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 1000;
+            justify-content: center;
+            z-index: 2000;
         }
         .auth-card {
             background: rgba(30,30,45,0.95);
             backdrop-filter: blur(10px);
-            padding: 32px;
-            border-radius: 40px;
+            padding: 28px 24px;
+            border-radius: 32px;
             width: 90%;
-            max-width: 380px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            max-width: 340px;
             border: 1px solid #2c2c3e;
         }
         .auth-card h2 {
             color: #00e6c3;
             margin-bottom: 24px;
             text-align: center;
+            font-size: 1.8rem;
         }
         .auth-card input {
             width: 100%;
@@ -54,7 +57,7 @@
             margin: 10px 0;
             background: #1e1e2a;
             border: 1px solid #3a3a50;
-            border-radius: 30px;
+            border-radius: 28px;
             color: white;
             font-size: 1rem;
         }
@@ -63,16 +66,16 @@
             padding: 14px;
             background: #00c3a2;
             border: none;
-            border-radius: 40px;
+            border-radius: 28px;
             font-weight: bold;
             font-size: 1rem;
-            margin-top: 15px;
+            margin-top: 16px;
             cursor: pointer;
         }
-        .avatar-preview {
+        .auth-avatar {
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         .avatar-circle {
             width: 80px;
@@ -92,100 +95,125 @@
             height: 100%;
             object-fit: cover;
         }
+        /* Основное приложение */
         .app {
-            width: 100%;
-            max-width: 550px;
-            height: 95vh;
-            background: #1a1a24;
-            border-radius: 32px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            height: 100vh;
+            background: #121218;
         }
+        /* Шапка */
         .header {
-            background: #23232f;
-            padding: 12px 20px;
-            color: white;
+            background: #1a1a24;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #2f2f3f;
+            border-bottom: 1px solid #2a2a36;
+            flex-shrink: 0;
         }
         .user-info {
             display: flex;
-            gap: 12px;
             align-items: center;
+            gap: 12px;
         }
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: #2a2a3a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
             overflow: hidden;
+            cursor: pointer;
+            flex-shrink: 0;
         }
         .user-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        .user-name {
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+        }
         .my-id {
             background: #00c3a2;
-            padding: 5px 12px;
-            border-radius: 50px;
+            padding: 4px 10px;
+            border-radius: 20px;
             font-size: 0.7rem;
             font-family: monospace;
             color: black;
-            font-weight: bold;
         }
         .logout-btn {
             background: #3a3a50;
-            padding: 6px 12px;
-            border-radius: 30px;
+            padding: 6px 14px;
+            border-radius: 25px;
             font-size: 0.8rem;
             cursor: pointer;
+            color: white;
         }
-        .main-row {
+        /* Контейнер с чатами и сообщениями */
+        .main-container {
             display: flex;
             flex: 1;
             min-height: 0;
+            overflow: hidden;
         }
+        /* Список чатов (сайдбар) */
         .chats-sidebar {
-            width: 35%;
-            background: #121218;
-            border-right: 1px solid #2a2a36;
+            width: 33%;
+            background: #0f0f17;
+            border-right: 1px solid #22222c;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chats-header {
+            padding: 12px;
+            border-bottom: 1px solid #22222c;
+        }
+        .add-friend-btn {
+            background: #1e1e2a;
+            border: none;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .chats-list {
+            flex: 1;
             overflow-y: auto;
-            padding: 12px 8px;
+            padding: 8px;
         }
         .chat-item {
-            background: #1e1e2a;
-            padding: 10px;
+            background: #161620;
+            padding: 12px;
             margin-bottom: 8px;
-            border-radius: 20px;
+            border-radius: 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: 0.1s;
         }
         .chat-item.active {
             background: #00c3a2;
+        }
+        .chat-item.active .chat-name {
             color: black;
         }
         .chat-avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: #3a3a50;
+            background: #2a2a38;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
             overflow: hidden;
             flex-shrink: 0;
         }
@@ -194,43 +222,48 @@
             height: 100%;
             object-fit: cover;
         }
+        .chat-avatar span {
+            font-size: 24px;
+        }
         .chat-info {
             flex: 1;
             min-width: 0;
         }
         .chat-name {
             font-weight: bold;
+            color: white;
             font-size: 0.9rem;
         }
-        .add-friend-btn {
-            background: #2a2a3a;
-            border: none;
+        .chat-preview {
+            font-size: 0.7rem;
+            opacity: 0.7;
             color: white;
-            padding: 8px;
-            margin-top: 12px;
-            width: 100%;
-            border-radius: 28px;
-            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        /* Область сообщений */
         .messages-area {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #14141e;
+            background: #121218;
+            overflow: hidden;
         }
         .chat-header {
-            padding: 10px 15px;
-            background: #1e1e2a;
-            border-bottom: 1px solid #2f2f3f;
+            padding: 12px 16px;
+            background: #1a1a24;
+            border-bottom: 1px solid #2a2a36;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            flex-shrink: 0;
         }
         .chat-header-avatar {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: #3a3a50;
+            background: #2a2a38;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -241,26 +274,31 @@
             height: 100%;
             object-fit: cover;
         }
+        .chat-header-name {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
         .messages-list {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
         .message {
-            max-width: 85%;
-            padding: 8px 14px;
+            max-width: 80%;
+            padding: 10px 14px;
             border-radius: 20px;
-            background: #2a2a38;
-            color: #eee;
+            background: #1e1e2a;
+            color: white;
             align-self: flex-start;
         }
         .message.my {
             align-self: flex-end;
             background: #00c3a2;
-            color: #0a0a0a;
+            color: black;
         }
         .message-text {
             word-wrap: break-word;
@@ -274,7 +312,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            min-width: 200px;
+            min-width: 180px;
         }
         .voice-play-btn {
             width: 36px;
@@ -285,9 +323,9 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 16px;
             border: none;
             color: white;
+            font-size: 14px;
         }
         .voice-timeline {
             flex: 1;
@@ -312,27 +350,30 @@
             margin-top: 4px;
             text-align: right;
         }
+        /* Панель ввода */
         .input-row {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             padding: 12px;
-            background: #1e1e2a;
-            border-top: 1px solid #2f2f3f;
+            background: #1a1a24;
+            border-top: 1px solid #2a2a36;
+            flex-shrink: 0;
         }
         .input-row input {
             flex: 1;
             background: #0e0e16;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 28px;
             color: white;
             outline: none;
+            font-size: 1rem;
         }
         .input-row button, .input-row label {
             background: #2f2f42;
-            width: 44px;
+            width: 48px;
             text-align: center;
-            line-height: 42px;
+            line-height: 48px;
             border-radius: 30px;
             cursor: pointer;
             font-size: 1.2rem;
@@ -344,7 +385,6 @@
         }
         .record-btn.recording {
             animation: pulse 0.5s infinite;
-            background: #ff0000 !important;
         }
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -353,15 +393,21 @@
         }
         .toast {
             position: fixed;
-            bottom: 30px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             background: #00c3a2;
             padding: 8px 20px;
             border-radius: 50px;
             color: black;
-            z-index: 999;
+            z-index: 1000;
             font-size: 14px;
+            white-space: nowrap;
+        }
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
         }
     </style>
 </head>
@@ -370,7 +416,7 @@
 <div id="authScreen" class="auth-screen">
     <div class="auth-card">
         <h2>🔐 TGMessenger</h2>
-        <div class="avatar-preview">
+        <div class="auth-avatar">
             <div class="avatar-circle" id="regAvatarBtn">
                 <span id="regAvatarEmoji">👤</span>
             </div>
@@ -378,7 +424,8 @@
         <input type="text" id="authLogin" placeholder="Логин" autocomplete="off">
         <input type="password" id="authPassword" placeholder="Пароль">
         <input type="file" id="regAvatarInput" accept="image/*" style="display: none;">
-        <button id="loginBtn">Войти / Создать аккаунт</button>
+        <button id="loginBtn">🚀 Войти / Создать</button>
+        <div style="text-align: center; margin-top: 16px; font-size: 12px; color: #888;">⬆ Нажми на аватар ⬆</div>
     </div>
 </div>
 
@@ -388,22 +435,26 @@
             <div class="user-avatar" id="changeAvatarBtn">
                 <span id="headerAvatarEmoji">👤</span>
             </div>
-            <span id="currentUsername"></span>
-            <span class="my-id" id="myUserId"></span>
+            <div class="user-name" id="currentUsername"></div>
+            <div class="my-id" id="myUserId"></div>
         </div>
-        <div class="logout-btn" id="logoutBtn">🚪 Выйти</div>
+        <div class="logout-btn" id="logoutBtn">🚪</div>
     </div>
-    <div class="main-row">
+    <div class="main-container">
         <div class="chats-sidebar">
-            <div id="chatsList"></div>
-            <button id="showAddFriendModal" class="add-friend-btn">➕ Добавить друга по ID</button>
+            <div class="chats-header">
+                <button id="showAddFriendModal" class="add-friend-btn">➕ Добавить друга</button>
+            </div>
+            <div class="chats-list" id="chatsList"></div>
         </div>
         <div class="messages-area">
             <div class="chat-header" id="chatHeader" style="display: none;">
                 <div class="chat-header-avatar" id="chatHeaderAvatar"></div>
                 <div class="chat-header-name" id="chatHeaderName"></div>
             </div>
-            <div class="messages-list" id="messagesList"></div>
+            <div class="messages-list" id="messagesList">
+                <div class="empty-state">💬 Выберите чат</div>
+            </div>
             <div class="input-row">
                 <input type="text" id="messageText" placeholder="Сообщение...">
                 <label for="photoInput">🖼️</label>
@@ -436,7 +487,6 @@
     let allFriendsList = [];
     let currentUserAvatar = null;
     
-    // Для записи голоса
     let mediaRecorder = null;
     let audioChunks = [];
     let isRecording = false;
@@ -476,11 +526,11 @@
             const data = child.val();
             if(data.displayKey === friendKey) targetUid = child.key;
         });
-        if(!targetUid) { alert(`❌ Пользователь ${friendKey} не найден`); return false; }
-        if(targetUid === currentUser.uid) { alert("❌ Нельзя добавить себя"); return false; }
+        if(!targetUid) { showToast(`❌ ${friendKey} не найден`); return false; }
+        if(targetUid === currentUser.uid) { showToast("❌ Нельзя себя"); return false; }
         
         const exists = await db.ref(`friends/${currentUser.uid}/${targetUid}`).once('value');
-        if(exists.exists()) { alert("❌ Уже в друзьях"); return false; }
+        if(exists.exists()) { showToast("❌ Уже в друзьях"); return false; }
         
         const targetProfile = await getUserProfile(targetUid);
         await db.ref(`friends/${currentUser.uid}/${targetUid}`).set({
@@ -495,7 +545,7 @@
             friendKey: currentUserId,
             friendAvatar: currentUserAvatar
         });
-        alert(`✅ Друг добавлен!`);
+        showToast(`✅ Друг добавлен!`);
         loadChatsList();
         return true;
     }
@@ -508,7 +558,7 @@
         allFriendsList = friends;
         const container = document.getElementById('chatsList');
         if(friends.length === 0) {
-            container.innerHTML = '<div style="padding:16px;color:#aaa;">👋 Нет друзей. Нажми "Добавить друга"</div>';
+            container.innerHTML = '<div class="empty-state">👋 Нет друзей<br>Нажми "Добавить друга"</div>';
             return;
         }
         container.innerHTML = friends.map(f => {
@@ -516,7 +566,10 @@
             return `
                 <div class="chat-item ${currentChatWith === f.friendUid ? 'active' : ''}" data-uid="${f.friendUid}">
                     <div class="chat-avatar">${avatarHtml}</div>
-                    <div class="chat-info"><div class="chat-name">${escapeHtml(f.friendName)}</div></div>
+                    <div class="chat-info">
+                        <div class="chat-name">${escapeHtml(f.friendName)}</div>
+                        <div class="chat-preview">${f.friendKey}</div>
+                    </div>
                 </div>
             `;
         }).join('');
@@ -534,7 +587,7 @@
         
         if(friendProfile) {
             header.style.display = 'flex';
-            headerAvatar.innerHTML = friendProfile.avatar ? `<img src="${friendProfile.avatar}">` : '👤';
+            headerAvatar.innerHTML = friendProfile.avatar ? `<img src="${friendProfile.avatar}">` : '<span>👤</span>';
             headerName.innerText = friendProfile.name || 'Друг';
         }
         loadChatsList();
@@ -556,7 +609,7 @@
     function renderMessages(messages) {
         const container = document.getElementById('messagesList');
         if(messages.length === 0) {
-            container.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">💬 Напишите первое сообщение</div>';
+            container.innerHTML = '<div class="empty-state">💬 Напишите первое сообщение</div>';
             return;
         }
         container.innerHTML = messages.map(msg => {
@@ -587,13 +640,11 @@
             `;
         }).join('');
         
-        // Обработчики для аудио
         document.querySelectorAll('.voice-play-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const audioSrc = btn.getAttribute('data-audio');
                 const audio = new Audio(audioSrc);
                 const progressBar = btn.parentElement.querySelector('.voice-progress');
-                const durationSpan = btn.parentElement.querySelector('.voice-duration');
                 
                 if(btn.textContent === '▶️') {
                     btn.textContent = '⏸️';
@@ -617,7 +668,7 @@
     }
 
     async function sendMessage(text = null, photoBase64 = null, voiceBase64 = null, voiceDuration = null) {
-        if(!currentChatWith || !currentUser) { alert("Выбери чат!"); return; }
+        if(!currentChatWith || !currentUser) { showToast("Выбери чат!"); return; }
         const chatId = [currentUser.uid, currentChatWith].sort().join('_');
         const msg = {
             senderUid: currentUser.uid,
@@ -659,7 +710,7 @@
         const recordBtn = document.getElementById('voiceRecordBtn');
         recordBtn.classList.add('recording');
         recordBtn.textContent = '⏹️';
-        showToast("🔴 Запись... Нажми ещё раз для остановки");
+        showToast("🔴 Запись...");
     }
 
     function stopRecording() {
@@ -684,7 +735,7 @@
             const base64 = e.target.result;
             currentUserAvatar = base64;
             if(isRegistration) {
-                document.getElementById('regAvatarEmoji').innerHTML = `<img src="${base64}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;">`;
+                document.getElementById('regAvatarEmoji').innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;">`;
             } else {
                 document.getElementById('headerAvatarEmoji').innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;">`;
                 if(currentUser) await saveUserProfile(currentUser, currentUserId, base64);
@@ -710,11 +761,11 @@
         return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
     }
 
-    // Регистрация/вход
+    // Регистрация
     document.getElementById('loginBtn').onclick = async () => {
         const login = document.getElementById('authLogin').value.trim();
         const pass = document.getElementById('authPassword').value.trim();
-        if(!login || !pass) { alert("Введи логин и пароль"); return; }
+        if(!login || !pass) { showToast("Введи логин и пароль"); return; }
         try {
             let userCred;
             try {
@@ -738,7 +789,7 @@
             await loadChatsList();
             if(allFriendsList.length > 0) openChatWith(allFriendsList[0].friendUid);
             showToast(`Добро пожаловать!`);
-        } catch(err) { alert("Ошибка: " + err.message); }
+        } catch(err) { showToast("Ошибка: " + err.message); }
     };
 
     document.getElementById('regAvatarBtn').onclick = () => document.getElementById('regAvatarInput').click();
@@ -762,7 +813,6 @@
     document.getElementById('photoInput').onchange = (e) => { if(e.target.files[0]) uploadPhotoAndSend(e.target.files[0]); e.target.value = ''; };
     document.getElementById('messageText').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('sendMsgBtn').click(); });
     
-    // Запись кружков
     const recordBtn = document.getElementById('voiceRecordBtn');
     recordBtn.onclick = async () => {
         if(isRecording) stopRecording();
