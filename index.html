@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🔥 TGMessenger — как Telegram</title>
-    <!-- Firebase SDK (старая версия, совместимая с твоим кодом) -->
+    <title>🔥 TGMessenger — с аватарками</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <!-- CryptoJS для шифрования -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <style>
         * {
@@ -71,7 +69,29 @@
             font-size: 1rem;
             margin-top: 15px;
             cursor: pointer;
-            transition: 0.2s;
+        }
+        .avatar-preview {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #2a2a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid #00c3a2;
+        }
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .auth-switch {
             text-align: center;
@@ -92,7 +112,7 @@
         }
         .header {
             background: #23232f;
-            padding: 16px 20px;
+            padding: 12px 20px;
             color: white;
             display: flex;
             justify-content: space-between;
@@ -102,14 +122,30 @@
         .user-info {
             display: flex;
             gap: 12px;
-            align-items: baseline;
-            flex-wrap: wrap;
+            align-items: center;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2a2a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .my-id {
             background: #00c3a2;
             padding: 5px 12px;
             border-radius: 50px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-family: monospace;
             color: black;
             font-weight: bold;
@@ -135,20 +171,53 @@
         }
         .chat-item {
             background: #1e1e2a;
-            padding: 12px;
+            padding: 10px;
             margin-bottom: 8px;
             border-radius: 20px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: 0.1s;
         }
         .chat-item.active {
             background: #00c3a2;
             color: black;
         }
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3a3a50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
         .chat-name {
             font-weight: bold;
-            display: flex;
-            justify-content: space-between;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .chat-key {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .add-friend-btn {
             background: #2a2a3a;
@@ -159,12 +228,41 @@
             width: 100%;
             border-radius: 28px;
             cursor: pointer;
+            font-size: 0.8rem;
         }
         .messages-area {
             flex: 1;
             display: flex;
             flex-direction: column;
             background: #14141e;
+        }
+        .chat-header {
+            padding: 10px 15px;
+            background: #1e1e2a;
+            border-bottom: 1px solid #2f2f3f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-header-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #3a3a50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            overflow: hidden;
+        }
+        .chat-header-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-header-name {
+            font-weight: bold;
+            color: white;
         }
         .messages-list {
             flex: 1;
@@ -187,10 +285,19 @@
             background: #00c3a2;
             color: #0a0a0a;
         }
+        .message-text {
+            word-wrap: break-word;
+        }
         .message img {
             max-width: 200px;
             border-radius: 16px;
             margin-top: 6px;
+        }
+        .message-time {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
         }
         .input-row {
             display: flex;
@@ -199,13 +306,14 @@
             background: #1e1e2a;
             border-top: 1px solid #2f2f3f;
         }
-        .input-row input {
+        .input-row input[type="text"] {
             flex: 1;
             background: #0e0e16;
             border: none;
             padding: 10px;
             border-radius: 28px;
             color: white;
+            outline: none;
         }
         .input-row button, .input-row label {
             background: #2f2f42;
@@ -215,6 +323,8 @@
             border-radius: 30px;
             cursor: pointer;
             font-size: 1.2rem;
+            border: none;
+            color: white;
         }
         .toast {
             position: fixed;
@@ -228,6 +338,37 @@
             z-index: 999;
             font-size: 14px;
         }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: #1e1e2a;
+            padding: 20px;
+            border-radius: 30px;
+            width: 280px;
+            text-align: center;
+        }
+        .modal-content h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+        .modal-content button {
+            background: #00c3a2;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -235,17 +376,26 @@
 <div id="authScreen" class="auth-screen">
     <div class="auth-card">
         <h2>🔐 TGMessenger</h2>
+        <div class="avatar-preview">
+            <div class="avatar-circle" id="regAvatarBtn">
+                <span id="regAvatarEmoji">👤</span>
+            </div>
+        </div>
         <input type="text" id="authLogin" placeholder="Логин (например, alex)" autocomplete="off">
         <input type="password" id="authPassword" placeholder="Пароль">
+        <input type="file" id="regAvatarInput" accept="image/*" style="display: none;">
         <button id="loginBtn">Войти / Создать аккаунт</button>
-        <div class="auth-switch" id="infoText">💡 Введи любой логин и пароль — аккаунт создастся сам</div>
+        <div class="auth-switch" id="infoText">💡 Нажми на аватар, чтобы установить фото</div>
     </div>
 </div>
 
 <div id="appMain" style="display: none;" class="app">
     <div class="header">
         <div class="user-info">
-            <span>👤 <span id="currentUsername"></span></span>
+            <div class="user-avatar" id="changeAvatarBtn">
+                <span id="headerAvatarEmoji">👤</span>
+            </div>
+            <span id="currentUsername"></span>
             <span class="my-id" id="myUserId">загрузка...</span>
         </div>
         <div class="logout-btn" id="logoutBtn">🚪 Выйти</div>
@@ -256,6 +406,10 @@
             <button id="showAddFriendModal" class="add-friend-btn">➕ Добавить друга по ID</button>
         </div>
         <div class="messages-area">
+            <div class="chat-header" id="chatHeader" style="display: none;">
+                <div class="chat-header-avatar" id="chatHeaderAvatar"></div>
+                <div class="chat-header-name" id="chatHeaderName"></div>
+            </div>
             <div class="messages-list" id="messagesList"></div>
             <div class="input-row" id="chatInputs">
                 <input type="text" id="messageText" placeholder="Сообщение...">
@@ -268,7 +422,6 @@
 </div>
 
 <script>
-    // ========== ТВОЙ КОНФИГ FIREBASE (скопирован правильно) ==========
     const firebaseConfig = {
         apiKey: "AIzaSyBwu2DALULk_MM0YWtfG4TJCJLU1zl6zNo",
         authDomain: "tgmessanger-c284e.firebaseapp.com",
@@ -278,7 +431,6 @@
         messagingSenderId: "386943411130",
         appId: "1:386943411130:web:3fa8c345cae54f6066b383"
     };
-    // ===============================================================
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -288,12 +440,7 @@
     let currentUserId = null;
     let currentChatWith = null;
     let allFriendsList = [];
-
-    function generateUserKey(user) {
-        if(!user) return null;
-        const emailShort = user.email ? user.email.split('@')[0] : user.uid.slice(0,8);
-        return `@${emailShort}_${user.uid.slice(-4)}`;
-    }
+    let currentUserAvatar = null;
 
     function getChatSecret(myId, friendId) {
         const combined = [myId, friendId].sort().join(':');
@@ -307,15 +454,27 @@
         return bytes.toString(CryptoJS.enc.Utf8);
     }
 
-    async function saveUserProfile(user, customKey = null) {
+    function generateUserKey(user) {
+        if(!user) return null;
+        const emailShort = user.email ? user.email.split('@')[0] : user.uid.slice(0,8);
+        return `@${emailShort}_${user.uid.slice(-4)}`;
+    }
+
+    async function saveUserProfile(user, customKey = null, avatarBase64 = null) {
         const userKey = customKey || generateUserKey(user);
-        await db.ref(`users/${user.uid}`).set({
+        const profile = {
             uid: user.uid,
             email: user.email,
             displayKey: userKey,
             name: user.email.split('@')[0],
             createdAt: Date.now()
-        });
+        };
+        if(avatarBase64) {
+            profile.avatar = avatarBase64;
+        } else if(currentUserAvatar) {
+            profile.avatar = currentUserAvatar;
+        }
+        await db.ref(`users/${user.uid}`).set(profile);
         return userKey;
     }
 
@@ -353,12 +512,14 @@
             friendUid: targetUid,
             friendName: targetProfile?.name || friendKey,
             friendKey: friendKey,
+            friendAvatar: targetProfile?.avatar || null,
             addedAt: Date.now()
         });
         await db.ref(`friends/${targetUid}/${currentUser.uid}`).set({
             friendUid: currentUser.uid,
             friendName: currentUser.email.split('@')[0],
             friendKey: currentUserId,
+            friendAvatar: currentUserAvatar,
             addedAt: Date.now()
         });
         alert(`✅ Друг ${targetProfile?.name || friendKey} добавлен!`);
@@ -380,12 +541,20 @@
             container.innerHTML = '<div style="padding:16px;color:#aaa;">👋 Нет друзей. Нажми "Добавить друга"</div>';
             return;
         }
-        container.innerHTML = friends.map(f => `
-            <div class="chat-item ${currentChatWith === f.friendUid ? 'active' : ''}" data-uid="${f.friendUid}">
-                <div class="chat-name">👤 ${f.friendName}</div>
-                <div style="font-size:10px; opacity:0.7;">${f.friendKey}</div>
-            </div>
-        `).join('');
+        container.innerHTML = friends.map(f => {
+            const avatarHtml = f.friendAvatar ? 
+                `<img src="${f.friendAvatar}" style="width:100%;height:100%;object-fit:cover;">` : 
+                `<span style="font-size:20px;">👤</span>`;
+            return `
+                <div class="chat-item ${currentChatWith === f.friendUid ? 'active' : ''}" data-uid="${f.friendUid}">
+                    <div class="chat-avatar">${avatarHtml}</div>
+                    <div class="chat-info">
+                        <div class="chat-name">${escapeHtml(f.friendName)}</div>
+                        <div class="chat-key">${f.friendKey}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
         document.querySelectorAll('.chat-item').forEach(el => {
             el.addEventListener('click', () => {
                 const uid = el.getAttribute('data-uid');
@@ -394,8 +563,33 @@
         });
     }
 
-    function openChatWith(friendUid) {
+    async function openChatWith(friendUid) {
         currentChatWith = friendUid;
+        const friendProfile = await getUserProfile(friendUid);
+        const friendData = allFriendsList.find(f => f.friendUid === friendUid);
+        
+        const headerDiv = document.getElementById('chatHeader');
+        const headerAvatar = document.getElementById('chatHeaderAvatar');
+        const headerName = document.getElementById('chatHeaderName');
+        
+        if(friendProfile) {
+            headerDiv.style.display = 'flex';
+            if(friendProfile.avatar) {
+                headerAvatar.innerHTML = `<img src="${friendProfile.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+            } else {
+                headerAvatar.innerHTML = `<span style="font-size:20px;">👤</span>`;
+            }
+            headerName.innerText = friendProfile.name || 'Друг';
+        } else if(friendData) {
+            headerDiv.style.display = 'flex';
+            if(friendData.friendAvatar) {
+                headerAvatar.innerHTML = `<img src="${friendData.friendAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
+            } else {
+                headerAvatar.innerHTML = `<span>👤</span>`;
+            }
+            headerName.innerText = friendData.friendName;
+        }
+        
         loadChatsList();
         loadMessages();
     }
@@ -426,7 +620,10 @@
             if(msg.encryptedText) {
                 try {
                     decryptedText = decryptMessage(msg.encryptedText, secret);
-                } catch(e) { decryptedText = '🔒 Сообщение не расшифровано'; }
+                    console.log("Расшифровано:", decryptedText);
+                } catch(e) { 
+                    decryptedText = '🔒 ...'; 
+                }
             }
             if(msg.photoBase64) {
                 photoSrc = msg.photoBase64;
@@ -434,9 +631,9 @@
             const isMine = msg.senderUid === currentUser.uid;
             return `
                 <div class="message ${isMine ? 'my' : ''}">
-                    ${decryptedText ? `<div>${escapeHtml(decryptedText)}</div>` : ''}
+                    ${decryptedText ? `<div class="message-text">${escapeHtml(decryptedText)}</div>` : ''}
                     ${photoSrc ? `<img src="${photoSrc}" onclick="window.open('${photoSrc}','_blank')" />` : ''}
-                    <div style="font-size:10px; opacity:0.6;">${new Date(msg.timestamp).toLocaleTimeString()}</div>
+                    <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
                 </div>
             `;
         }).join('');
@@ -478,6 +675,26 @@
         reader.readAsDataURL(file);
     }
 
+    function uploadAvatar(file, isRegistration = true) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const base64 = e.target.result;
+            currentUserAvatar = base64;
+            if(isRegistration) {
+                document.getElementById('regAvatarEmoji').innerHTML = `<img src="${base64}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;">`;
+            } else {
+                const headerAvatar = document.getElementById('headerAvatarEmoji');
+                if(headerAvatar) headerAvatar.innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;">`;
+                if(currentUser) {
+                    await saveUserProfile(currentUser, currentUserId, base64);
+                    showToast("✅ Аватар обновлён!");
+                    loadChatsList();
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
     function showToast(msg) {
         let oldToast = document.querySelector('.toast');
         if(oldToast) oldToast.remove();
@@ -488,7 +705,7 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
-    // Авторизация
+    // Регистрация/вход
     document.getElementById('loginBtn').onclick = async () => {
         const login = document.getElementById('authLogin').value.trim();
         const pass = document.getElementById('authPassword').value.trim();
@@ -505,11 +722,26 @@
             }
             currentUser = userCred.user;
             currentUserId = generateUserKey(currentUser);
-            await saveUserProfile(currentUser, currentUserId);
+            
+            const existingProfile = await getUserProfile(currentUser.uid);
+            if(!existingProfile && currentUserAvatar) {
+                await saveUserProfile(currentUser, currentUserId, currentUserAvatar);
+            } else if(existingProfile && existingProfile.avatar) {
+                currentUserAvatar = existingProfile.avatar;
+            } else {
+                await saveUserProfile(currentUser, currentUserId);
+            }
+            
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appMain').style.display = 'flex';
             document.getElementById('currentUsername').innerText = currentUser.email.split('@')[0];
             document.getElementById('myUserId').innerText = currentUserId;
+            
+            const headerAvatar = document.getElementById('headerAvatarEmoji');
+            if(currentUserAvatar) {
+                headerAvatar.innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
+            }
+            
             await loadChatsList();
             if(allFriendsList.length > 0) {
                 openChatWith(allFriendsList[0].friendUid);
@@ -520,11 +752,26 @@
         }
     };
 
+    document.getElementById('regAvatarBtn').onclick = () => {
+        document.getElementById('regAvatarInput').click();
+    };
+    document.getElementById('regAvatarInput').onchange = (e) => {
+        if(e.target.files[0]) uploadAvatar(e.target.files[0], true);
+    };
+    document.getElementById('changeAvatarBtn').onclick = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            if(e.target.files[0]) uploadAvatar(e.target.files[0], false);
+        };
+        input.click();
+    };
+
     document.getElementById('logoutBtn').onclick = async () => {
         await auth.signOut();
         location.reload();
     };
-
     document.getElementById('sendMsgBtn').onclick = async () => {
         const text = document.getElementById('messageText').value;
         if(text) {
@@ -532,34 +779,35 @@
             document.getElementById('messageText').value = '';
         }
     };
-
     document.getElementById('showAddFriendModal').onclick = () => {
         const key = prompt("Введите уникальный ключ друга (например @alex_1a2b):");
         if(key) addFriendByKey(key);
     };
-
     document.getElementById('photoInput').onchange = (e) => {
         if(e.target.files[0]) uploadPhotoAndSend(e.target.files[0]);
         e.target.value = '';
     };
-
     document.getElementById('messageText').addEventListener('keypress', (e) => {
         if(e.key === 'Enter') document.getElementById('sendMsgBtn').click();
     });
-
     document.getElementById('infoText').onclick = () => {
-        alert("Просто введи любой логин и пароль — аккаунт создастся автоматически.\n\nПосле входа твой уникальный ID появится в шапке мессенджера. Скопируй его и отправь другу, чтобы он добавил тебя!");
+        alert("Просто введи любой логин и пароль — аккаунт создастся автоматически.\n\nНажми на аватар, чтобы установить свою фотографию!");
     };
 
     auth.onAuthStateChanged(async (user) => {
         if(user) {
             currentUser = user;
             currentUserId = generateUserKey(currentUser);
-            await saveUserProfile(currentUser, currentUserId);
+            const profile = await getUserProfile(currentUser.uid);
+            if(profile && profile.avatar) currentUserAvatar = profile.avatar;
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appMain').style.display = 'flex';
             document.getElementById('currentUsername').innerText = currentUser.email.split('@')[0];
             document.getElementById('myUserId').innerText = currentUserId;
+            const headerAvatar = document.getElementById('headerAvatarEmoji');
+            if(currentUserAvatar) {
+                headerAvatar.innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
+            }
             loadChatsList();
         }
     });
