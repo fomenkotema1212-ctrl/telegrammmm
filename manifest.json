@@ -1,11 +1,21 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
+  "name": "TGMessenger",
+  "short_name": "TGMsg",
+  "description": "Мессенджер с чатами, фото и кружками",
+  "start_url": "/",
   "display": "standalone",
-  "name": "fomenkotema1212-ctrl.github",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "fomenkotema1212-ctrl.github",
-  "start_url": "/https://fomenkotema1212-ctrl.github.io/telegrammmm/",
-  "theme_color": "#ffffff"
+  "theme_color": "#00c3a2",
+  "background_color": "#1a1a24",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
