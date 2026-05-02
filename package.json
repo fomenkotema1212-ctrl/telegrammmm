@@ -1,0 +1,12 @@
+{
+  "name": "messenger-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nitron dev",
+    "build": "nitron build"
+  },
+  "dependencies": {
+    "nitron": "latest"
+  }
+}
