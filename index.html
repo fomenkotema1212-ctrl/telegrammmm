@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🔥 TGMessenger — с аватарками</title>
+    <title>🎤 TGMessenger — Текст + Кружки</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -92,12 +91,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        .auth-switch {
-            text-align: center;
-            margin-top: 20px;
-            color: #aaa;
-            cursor: pointer;
         }
         .app {
             width: 100%;
@@ -208,16 +201,6 @@
         .chat-name {
             font-weight: bold;
             font-size: 0.9rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .chat-key {
-            font-size: 0.65rem;
-            opacity: 0.7;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
         .add-friend-btn {
             background: #2a2a3a;
@@ -228,7 +211,6 @@
             width: 100%;
             border-radius: 28px;
             cursor: pointer;
-            font-size: 0.8rem;
         }
         .messages-area {
             flex: 1;
@@ -252,17 +234,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
             overflow: hidden;
         }
         .chat-header-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        .chat-header-name {
-            font-weight: bold;
-            color: white;
         }
         .messages-list {
             flex: 1;
@@ -293,6 +270,42 @@
             border-radius: 16px;
             margin-top: 6px;
         }
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+        .voice-play-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #3a3a50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            border: none;
+            color: white;
+        }
+        .voice-timeline {
+            flex: 1;
+            height: 4px;
+            background: #5a5a6e;
+            border-radius: 2px;
+            position: relative;
+        }
+        .voice-progress {
+            width: 0%;
+            height: 100%;
+            background: #00c3a2;
+            border-radius: 2px;
+        }
+        .voice-duration {
+            font-size: 11px;
+            opacity: 0.7;
+        }
         .message-time {
             font-size: 9px;
             opacity: 0.6;
@@ -306,7 +319,7 @@
             background: #1e1e2a;
             border-top: 1px solid #2f2f3f;
         }
-        .input-row input[type="text"] {
+        .input-row input {
             flex: 1;
             background: #0e0e16;
             border: none;
@@ -326,6 +339,18 @@
             border: none;
             color: white;
         }
+        .record-btn {
+            background: #ff4444 !important;
+        }
+        .record-btn.recording {
+            animation: pulse 0.5s infinite;
+            background: #ff0000 !important;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -337,37 +362,6 @@
             color: black;
             z-index: 999;
             font-size: 14px;
-        }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .modal-content {
-            background: #1e1e2a;
-            padding: 20px;
-            border-radius: 30px;
-            width: 280px;
-            text-align: center;
-        }
-        .modal-content h3 {
-            color: white;
-            margin-bottom: 15px;
-        }
-        .modal-content button {
-            background: #00c3a2;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            margin-top: 15px;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -381,11 +375,10 @@
                 <span id="regAvatarEmoji">👤</span>
             </div>
         </div>
-        <input type="text" id="authLogin" placeholder="Логин (например, alex)" autocomplete="off">
+        <input type="text" id="authLogin" placeholder="Логин" autocomplete="off">
         <input type="password" id="authPassword" placeholder="Пароль">
         <input type="file" id="regAvatarInput" accept="image/*" style="display: none;">
         <button id="loginBtn">Войти / Создать аккаунт</button>
-        <div class="auth-switch" id="infoText">💡 Нажми на аватар, чтобы установить фото</div>
     </div>
 </div>
 
@@ -396,7 +389,7 @@
                 <span id="headerAvatarEmoji">👤</span>
             </div>
             <span id="currentUsername"></span>
-            <span class="my-id" id="myUserId">загрузка...</span>
+            <span class="my-id" id="myUserId"></span>
         </div>
         <div class="logout-btn" id="logoutBtn">🚪 Выйти</div>
     </div>
@@ -411,10 +404,11 @@
                 <div class="chat-header-name" id="chatHeaderName"></div>
             </div>
             <div class="messages-list" id="messagesList"></div>
-            <div class="input-row" id="chatInputs">
+            <div class="input-row">
                 <input type="text" id="messageText" placeholder="Сообщение...">
                 <label for="photoInput">🖼️</label>
                 <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                <button id="voiceRecordBtn" class="record-btn">🎤</button>
                 <button id="sendMsgBtn">📤</button>
             </div>
         </div>
@@ -441,18 +435,12 @@
     let currentChatWith = null;
     let allFriendsList = [];
     let currentUserAvatar = null;
-
-    function getChatSecret(myId, friendId) {
-        const combined = [myId, friendId].sort().join(':');
-        return CryptoJS.SHA256(combined).toString();
-    }
-    function encryptMessage(text, secret) {
-        return CryptoJS.AES.encrypt(text, secret).toString();
-    }
-    function decryptMessage(cipher, secret) {
-        const bytes = CryptoJS.AES.decrypt(cipher, secret);
-        return bytes.toString(CryptoJS.enc.Utf8);
-    }
+    
+    // Для записи голоса
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let recordingStartTime = null;
 
     function generateUserKey(user) {
         if(!user) return null;
@@ -469,11 +457,8 @@
             name: user.email.split('@')[0],
             createdAt: Date.now()
         };
-        if(avatarBase64) {
-            profile.avatar = avatarBase64;
-        } else if(currentUserAvatar) {
-            profile.avatar = currentUserAvatar;
-        }
+        if(avatarBase64) profile.avatar = avatarBase64;
+        else if(currentUserAvatar) profile.avatar = currentUserAvatar;
         await db.ref(`users/${user.uid}`).set(profile);
         return userKey;
     }
@@ -489,40 +474,28 @@
         let targetUid = null;
         usersSnap.forEach(child => {
             const data = child.val();
-            if(data.displayKey === friendKey) {
-                targetUid = child.key;
-            }
+            if(data.displayKey === friendKey) targetUid = child.key;
         });
-        if(!targetUid) {
-            alert(`❌ Пользователь с ключом ${friendKey} не найден`);
-            return false;
-        }
-        if(targetUid === currentUser.uid) {
-            alert("❌ Нельзя добавить самого себя");
-            return false;
-        }
-        const friendsRef = db.ref(`friends/${currentUser.uid}/${targetUid}`);
-        const exists = await friendsRef.once('value');
-        if(exists.exists()) {
-            alert("❌ Этот друг уже добавлен");
-            return false;
-        }
+        if(!targetUid) { alert(`❌ Пользователь ${friendKey} не найден`); return false; }
+        if(targetUid === currentUser.uid) { alert("❌ Нельзя добавить себя"); return false; }
+        
+        const exists = await db.ref(`friends/${currentUser.uid}/${targetUid}`).once('value');
+        if(exists.exists()) { alert("❌ Уже в друзьях"); return false; }
+        
         const targetProfile = await getUserProfile(targetUid);
-        await friendsRef.set({
+        await db.ref(`friends/${currentUser.uid}/${targetUid}`).set({
             friendUid: targetUid,
             friendName: targetProfile?.name || friendKey,
             friendKey: friendKey,
-            friendAvatar: targetProfile?.avatar || null,
-            addedAt: Date.now()
+            friendAvatar: targetProfile?.avatar || null
         });
         await db.ref(`friends/${targetUid}/${currentUser.uid}`).set({
             friendUid: currentUser.uid,
             friendName: currentUser.email.split('@')[0],
             friendKey: currentUserId,
-            friendAvatar: currentUserAvatar,
-            addedAt: Date.now()
+            friendAvatar: currentUserAvatar
         });
-        alert(`✅ Друг ${targetProfile?.name || friendKey} добавлен!`);
+        alert(`✅ Друг добавлен!`);
         loadChatsList();
         return true;
     }
@@ -531,65 +504,39 @@
         if(!currentUser) return;
         const friendsSnap = await db.ref(`friends/${currentUser.uid}`).once('value');
         const friends = [];
-        friendsSnap.forEach(child => {
-            friends.push(child.val());
-        });
+        friendsSnap.forEach(child => friends.push(child.val()));
         allFriendsList = friends;
         const container = document.getElementById('chatsList');
-        if(!container) return;
         if(friends.length === 0) {
             container.innerHTML = '<div style="padding:16px;color:#aaa;">👋 Нет друзей. Нажми "Добавить друга"</div>';
             return;
         }
         container.innerHTML = friends.map(f => {
-            const avatarHtml = f.friendAvatar ? 
-                `<img src="${f.friendAvatar}" style="width:100%;height:100%;object-fit:cover;">` : 
-                `<span style="font-size:20px;">👤</span>`;
+            const avatarHtml = f.friendAvatar ? `<img src="${f.friendAvatar}">` : '<span>👤</span>';
             return `
                 <div class="chat-item ${currentChatWith === f.friendUid ? 'active' : ''}" data-uid="${f.friendUid}">
                     <div class="chat-avatar">${avatarHtml}</div>
-                    <div class="chat-info">
-                        <div class="chat-name">${escapeHtml(f.friendName)}</div>
-                        <div class="chat-key">${f.friendKey}</div>
-                    </div>
+                    <div class="chat-info"><div class="chat-name">${escapeHtml(f.friendName)}</div></div>
                 </div>
             `;
         }).join('');
         document.querySelectorAll('.chat-item').forEach(el => {
-            el.addEventListener('click', () => {
-                const uid = el.getAttribute('data-uid');
-                openChatWith(uid);
-            });
+            el.addEventListener('click', () => openChatWith(el.getAttribute('data-uid')));
         });
     }
 
     async function openChatWith(friendUid) {
         currentChatWith = friendUid;
         const friendProfile = await getUserProfile(friendUid);
-        const friendData = allFriendsList.find(f => f.friendUid === friendUid);
-        
-        const headerDiv = document.getElementById('chatHeader');
+        const header = document.getElementById('chatHeader');
         const headerAvatar = document.getElementById('chatHeaderAvatar');
         const headerName = document.getElementById('chatHeaderName');
         
         if(friendProfile) {
-            headerDiv.style.display = 'flex';
-            if(friendProfile.avatar) {
-                headerAvatar.innerHTML = `<img src="${friendProfile.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
-            } else {
-                headerAvatar.innerHTML = `<span style="font-size:20px;">👤</span>`;
-            }
+            header.style.display = 'flex';
+            headerAvatar.innerHTML = friendProfile.avatar ? `<img src="${friendProfile.avatar}">` : '👤';
             headerName.innerText = friendProfile.name || 'Друг';
-        } else if(friendData) {
-            headerDiv.style.display = 'flex';
-            if(friendData.friendAvatar) {
-                headerAvatar.innerHTML = `<img src="${friendData.friendAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
-            } else {
-                headerAvatar.innerHTML = `<span>👤</span>`;
-            }
-            headerName.innerText = friendData.friendName;
         }
-        
         loadChatsList();
         loadMessages();
     }
@@ -597,81 +544,137 @@
     async function loadMessages() {
         if(!currentChatWith || !currentUser) return;
         const chatId = [currentUser.uid, currentChatWith].sort().join('_');
-        const secret = getChatSecret(currentUserId, currentChatWith);
         const messagesRef = db.ref(`messages/${chatId}`);
         messagesRef.off();
         messagesRef.on('value', (snapshot) => {
             const msgs = snapshot.val() || {};
             const messagesArray = Object.values(msgs).sort((a,b) => a.timestamp - b.timestamp);
-            renderMessages(messagesArray, secret);
+            renderMessages(messagesArray);
         });
     }
 
-    function renderMessages(messages, secret) {
+    function renderMessages(messages) {
         const container = document.getElementById('messagesList');
-        if(!container) return;
         if(messages.length === 0) {
             container.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">💬 Напишите первое сообщение</div>';
             return;
         }
         container.innerHTML = messages.map(msg => {
-            let decryptedText = '';
-            let photoSrc = null;
-            if(msg.encryptedText) {
-                try {
-                    decryptedText = decryptMessage(msg.encryptedText, secret);
-                    console.log("Расшифровано:", decryptedText);
-                } catch(e) { 
-                    decryptedText = '🔒 ...'; 
-                }
-            }
-            if(msg.photoBase64) {
-                photoSrc = msg.photoBase64;
-            }
             const isMine = msg.senderUid === currentUser.uid;
+            let content = '';
+            
+            if(msg.text) {
+                content = `<div class="message-text">${escapeHtml(msg.text)}</div>`;
+            }
+            if(msg.photo) {
+                content += `<img src="${msg.photo}" onclick="window.open('${msg.photo}','_blank')">`;
+            }
+            if(msg.voice) {
+                content = `
+                    <div class="voice-message">
+                        <button class="voice-play-btn" data-audio="${msg.voice}">▶️</button>
+                        <div class="voice-timeline"><div class="voice-progress"></div></div>
+                        <span class="voice-duration">${msg.voiceDuration || '0:00'}</span>
+                    </div>
+                `;
+            }
+            
             return `
                 <div class="message ${isMine ? 'my' : ''}">
-                    ${decryptedText ? `<div class="message-text">${escapeHtml(decryptedText)}</div>` : ''}
-                    ${photoSrc ? `<img src="${photoSrc}" onclick="window.open('${photoSrc}','_blank')" />` : ''}
+                    ${content}
                     <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
                 </div>
             `;
         }).join('');
+        
+        // Обработчики для аудио
+        document.querySelectorAll('.voice-play-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const audioSrc = btn.getAttribute('data-audio');
+                const audio = new Audio(audioSrc);
+                const progressBar = btn.parentElement.querySelector('.voice-progress');
+                const durationSpan = btn.parentElement.querySelector('.voice-duration');
+                
+                if(btn.textContent === '▶️') {
+                    btn.textContent = '⏸️';
+                    audio.play();
+                    audio.ontimeupdate = () => {
+                        const percent = (audio.currentTime / audio.duration) * 100;
+                        if(progressBar) progressBar.style.width = percent + '%';
+                    };
+                    audio.onended = () => {
+                        btn.textContent = '▶️';
+                        if(progressBar) progressBar.style.width = '0%';
+                    };
+                } else {
+                    btn.textContent = '▶️';
+                    audio.pause();
+                }
+            });
+        });
+        
         container.scrollTop = container.scrollHeight;
     }
 
-    function escapeHtml(str) {
-        if(!str) return '';
-        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-    }
-
-    async function sendMessage(text, photoBase64 = null) {
-        if(!currentChatWith || !currentUser) {
-            alert("Сначала выбери чат с другом!");
-            return;
-        }
-        if(!text && !photoBase64) return;
+    async function sendMessage(text = null, photoBase64 = null, voiceBase64 = null, voiceDuration = null) {
+        if(!currentChatWith || !currentUser) { alert("Выбери чат!"); return; }
         const chatId = [currentUser.uid, currentChatWith].sort().join('_');
-        const secret = getChatSecret(currentUserId, currentChatWith);
-        let encrypted = null;
-        if(text) encrypted = encryptMessage(text, secret);
-        const newMsgRef = db.ref(`messages/${chatId}`).push();
-        await newMsgRef.set({
+        const msg = {
             senderUid: currentUser.uid,
             receiverUid: currentChatWith,
-            encryptedText: encrypted,
-            photoBase64: photoBase64 || null,
             timestamp: Date.now()
-        });
+        };
+        if(text) msg.text = text;
+        if(photoBase64) msg.photo = photoBase64;
+        if(voiceBase64) { msg.voice = voiceBase64; msg.voiceDuration = voiceDuration; }
+        
+        await db.ref(`messages/${chatId}`).push().set(msg);
+    }
+
+    async function startRecording() {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64 = reader.result;
+                const duration = Math.round((Date.now() - recordingStartTime) / 1000);
+                const minutes = Math.floor(duration / 60);
+                const seconds = duration % 60;
+                const durationStr = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+                await sendMessage(null, null, base64, durationStr);
+                showToast("🎤 Кружок отправлен!");
+            };
+            reader.readAsDataURL(audioBlob);
+            stream.getTracks().forEach(track => track.stop());
+        };
+        
+        mediaRecorder.start();
+        isRecording = true;
+        recordingStartTime = Date.now();
+        const recordBtn = document.getElementById('voiceRecordBtn');
+        recordBtn.classList.add('recording');
+        recordBtn.textContent = '⏹️';
+        showToast("🔴 Запись... Нажми ещё раз для остановки");
+    }
+
+    function stopRecording() {
+        if(mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            const recordBtn = document.getElementById('voiceRecordBtn');
+            recordBtn.classList.remove('recording');
+            recordBtn.textContent = '🎤';
+        }
     }
 
     function uploadPhotoAndSend(file) {
         const reader = new FileReader();
-        reader.onload = async (e) => {
-            const base64 = e.target.result;
-            await sendMessage('', base64);
-            showToast("📸 Фото отправлено");
-        };
+        reader.onload = async (e) => await sendMessage(null, e.target.result);
         reader.readAsDataURL(file);
     }
 
@@ -683,36 +686,35 @@
             if(isRegistration) {
                 document.getElementById('regAvatarEmoji').innerHTML = `<img src="${base64}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;">`;
             } else {
-                const headerAvatar = document.getElementById('headerAvatarEmoji');
-                if(headerAvatar) headerAvatar.innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;">`;
-                if(currentUser) {
-                    await saveUserProfile(currentUser, currentUserId, base64);
-                    showToast("✅ Аватар обновлён!");
-                    loadChatsList();
-                }
+                document.getElementById('headerAvatarEmoji').innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;">`;
+                if(currentUser) await saveUserProfile(currentUser, currentUserId, base64);
+                showToast("✅ Аватар обновлён!");
+                loadChatsList();
             }
         };
         reader.readAsDataURL(file);
     }
 
     function showToast(msg) {
-        let oldToast = document.querySelector('.toast');
-        if(oldToast) oldToast.remove();
-        const toast = document.createElement('div');
+        let toast = document.querySelector('.toast');
+        if(toast) toast.remove();
+        toast = document.createElement('div');
         toast.className = 'toast';
         toast.innerText = msg;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
     }
 
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+    }
+
     // Регистрация/вход
     document.getElementById('loginBtn').onclick = async () => {
         const login = document.getElementById('authLogin').value.trim();
         const pass = document.getElementById('authPassword').value.trim();
-        if(!login || !pass) {
-            alert("Введи логин и пароль");
-            return;
-        }
+        if(!login || !pass) { alert("Введи логин и пароль"); return; }
         try {
             let userCred;
             try {
@@ -722,76 +724,49 @@
             }
             currentUser = userCred.user;
             currentUserId = generateUserKey(currentUser);
-            
             const existingProfile = await getUserProfile(currentUser.uid);
-            if(!existingProfile && currentUserAvatar) {
-                await saveUserProfile(currentUser, currentUserId, currentUserAvatar);
-            } else if(existingProfile && existingProfile.avatar) {
-                currentUserAvatar = existingProfile.avatar;
-            } else {
-                await saveUserProfile(currentUser, currentUserId);
-            }
+            if(existingProfile?.avatar) currentUserAvatar = existingProfile.avatar;
+            else if(currentUserAvatar) await saveUserProfile(currentUser, currentUserId, currentUserAvatar);
+            else await saveUserProfile(currentUser, currentUserId);
             
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appMain').style.display = 'flex';
             document.getElementById('currentUsername').innerText = currentUser.email.split('@')[0];
             document.getElementById('myUserId').innerText = currentUserId;
-            
-            const headerAvatar = document.getElementById('headerAvatarEmoji');
-            if(currentUserAvatar) {
-                headerAvatar.innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
-            }
+            if(currentUserAvatar) document.getElementById('headerAvatarEmoji').innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
             
             await loadChatsList();
-            if(allFriendsList.length > 0) {
-                openChatWith(allFriendsList[0].friendUid);
-            }
-            showToast(`Добро пожаловать, ${currentUser.email.split('@')[0]}!`);
-        } catch(err) {
-            alert("Ошибка: " + err.message);
-        }
+            if(allFriendsList.length > 0) openChatWith(allFriendsList[0].friendUid);
+            showToast(`Добро пожаловать!`);
+        } catch(err) { alert("Ошибка: " + err.message); }
     };
 
-    document.getElementById('regAvatarBtn').onclick = () => {
-        document.getElementById('regAvatarInput').click();
-    };
-    document.getElementById('regAvatarInput').onchange = (e) => {
-        if(e.target.files[0]) uploadAvatar(e.target.files[0], true);
-    };
+    document.getElementById('regAvatarBtn').onclick = () => document.getElementById('regAvatarInput').click();
+    document.getElementById('regAvatarInput').onchange = (e) => { if(e.target.files[0]) uploadAvatar(e.target.files[0], true); };
     document.getElementById('changeAvatarBtn').onclick = () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.onchange = (e) => {
-            if(e.target.files[0]) uploadAvatar(e.target.files[0], false);
-        };
+        input.onchange = (e) => { if(e.target.files[0]) uploadAvatar(e.target.files[0], false); };
         input.click();
     };
-
-    document.getElementById('logoutBtn').onclick = async () => {
-        await auth.signOut();
-        location.reload();
-    };
+    document.getElementById('logoutBtn').onclick = async () => { await auth.signOut(); location.reload(); };
     document.getElementById('sendMsgBtn').onclick = async () => {
         const text = document.getElementById('messageText').value;
-        if(text) {
-            await sendMessage(text, null);
-            document.getElementById('messageText').value = '';
-        }
+        if(text) { await sendMessage(text); document.getElementById('messageText').value = ''; }
     };
     document.getElementById('showAddFriendModal').onclick = () => {
-        const key = prompt("Введите уникальный ключ друга (например @alex_1a2b):");
+        const key = prompt("Введите ID друга (например @alex_1a2b):");
         if(key) addFriendByKey(key);
     };
-    document.getElementById('photoInput').onchange = (e) => {
-        if(e.target.files[0]) uploadPhotoAndSend(e.target.files[0]);
-        e.target.value = '';
-    };
-    document.getElementById('messageText').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') document.getElementById('sendMsgBtn').click();
-    });
-    document.getElementById('infoText').onclick = () => {
-        alert("Просто введи любой логин и пароль — аккаунт создастся автоматически.\n\nНажми на аватар, чтобы установить свою фотографию!");
+    document.getElementById('photoInput').onchange = (e) => { if(e.target.files[0]) uploadPhotoAndSend(e.target.files[0]); e.target.value = ''; };
+    document.getElementById('messageText').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('sendMsgBtn').click(); });
+    
+    // Запись кружков
+    const recordBtn = document.getElementById('voiceRecordBtn');
+    recordBtn.onclick = async () => {
+        if(isRecording) stopRecording();
+        else await startRecording();
     };
 
     auth.onAuthStateChanged(async (user) => {
@@ -799,15 +774,12 @@
             currentUser = user;
             currentUserId = generateUserKey(currentUser);
             const profile = await getUserProfile(currentUser.uid);
-            if(profile && profile.avatar) currentUserAvatar = profile.avatar;
+            if(profile?.avatar) currentUserAvatar = profile.avatar;
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appMain').style.display = 'flex';
             document.getElementById('currentUsername').innerText = currentUser.email.split('@')[0];
             document.getElementById('myUserId').innerText = currentUserId;
-            const headerAvatar = document.getElementById('headerAvatarEmoji');
-            if(currentUserAvatar) {
-                headerAvatar.innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
-            }
+            if(currentUserAvatar) document.getElementById('headerAvatarEmoji').innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
             loadChatsList();
         }
     });
