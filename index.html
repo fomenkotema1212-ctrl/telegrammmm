@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TGMessenger + IP Логи</title>
+    <title>TGMessenger</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -24,6 +24,52 @@
             width: 100%;
         }
 
+        /* АНИМИРОВАННЫЙ ГРАДИЕНТНЫЙ ФОН */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e, #16213e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        /* Дополнительное затемнение для читаемости текста */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body.dark::before {
+            background: linear-gradient(135deg, #0f0f12, #1a1a2e, #16213e, #0f0f12);
+            background-size: 400% 400%;
+        }
+
+        body.light::before {
+            background: linear-gradient(135deg, #e8f0ff, #d4e4ff, #c0d8ff, #e8f0ff);
+            background-size: 400% 400%;
+        }
+
+        body.light::after {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         body.dark {
             --bg: #0f0f12;
             --surface: #1c1c1e;
@@ -34,6 +80,7 @@
             --accent: #3390ec;
             --message-out: #2c2c2e;
             --message-in: #3390ec;
+            --online: #34c759;
         }
 
         body.light {
@@ -46,138 +93,73 @@
             --accent: #3390ec;
             --message-out: #e4e6eb;
             --message-in: #3390ec;
+            --online: #34c759;
         }
 
-        body {
-            background: var(--bg);
-        }
-
-        .auth-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .app-container {
+            display: flex;
+            height: 100vh;
             width: 100%;
-            height: 100%;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
+            position: relative;
         }
 
-        .auth-card {
-            background: var(--surface);
-            padding: 28px 24px;
-            border-radius: 28px;
-            width: 90%;
-            max-width: 320px;
-            text-align: center;
-        }
-
-        .auth-card h2 { color: var(--accent); margin-bottom: 20px; }
-        .auth-avatar { margin-bottom: 20px; }
-        .avatar-circle {
-            width: 90px; height: 90px; border-radius: 50%;
-            background: var(--card); margin: 0 auto;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 48px; cursor: pointer; overflow: hidden;
-            border: 2px solid var(--accent);
-        }
-        .auth-card input {
-            width: 100%; padding: 14px; margin: 8px 0;
-            background: var(--card); border: none;
-            border-radius: 20px; color: var(--text); font-size: 16px;
-        }
-        .auth-card button {
-            width: 100%; padding: 14px; background: var(--accent);
-            border: none; border-radius: 28px; font-weight: bold;
-            margin-top: 16px; color: white; cursor: pointer;
-        }
-
-        .app { display: flex; flex-direction: column; height: 100vh; background: var(--bg); }
-        .header {
-            background: var(--surface); padding: 12px 16px;
-            padding-top: env(safe-area-inset-top, 12px);
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 0.5px solid var(--border);
-        }
-        .user-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .user-avatar {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: var(--card); display: flex; align-items: center;
-            justify-content: center; overflow: hidden; cursor: pointer;
-        }
-        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .user-name { font-weight: bold; color: var(--text); font-size: 17px; }
-        .my-id { font-size: 12px; color: var(--accent); background: transparent; padding: 4px 8px; }
-
-        .stories-row {
-            padding: 12px 16px;
-            display: flex;
-            gap: 16px;
-            overflow-x: auto;
-            border-bottom: 0.5px solid var(--border);
-            background: var(--surface);
-        }
-        .story-item {
+        .main-content {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
+            background: transparent;
         }
-        .story-circle {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 2px;
-        }
-        .story-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--surface); }
-        .story-add { border: 2px dashed var(--accent); background: transparent; }
-        .story-name { font-size: 11px; color: var(--text-secondary); }
 
-        .story-screen {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: #000; z-index: 400; display: flex; flex-direction: column;
-        }
-        .story-header { padding: 16px; color: white; display: flex; justify-content: space-between; background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent); }
-        .story-content { flex: 1; display: flex; align-items: center; justify-content: center; }
-        .story-content img, .story-content video { max-width: 100%; max-height: 80%; border-radius: 16px; }
-        .story-close { background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 24px; }
-
-        .bottom-nav {
-            display: flex;
+        .right-panel {
+            position: fixed;
+            right: -280px;
+            top: 0;
+            width: 280px;
+            height: 100vh;
             background: var(--surface);
-            padding: 8px 0;
-            padding-bottom: env(safe-area-inset-bottom, 8px);
-            border-top: 0.5px solid var(--border);
+            border-left: 0.5px solid var(--border);
+            z-index: 200;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-top: env(safe-area-inset-top, 60px);
         }
-        .nav-item { flex: 1; text-align: center; padding: 8px; color: var(--text-secondary); cursor: pointer; font-size: 11px; }
-        .nav-item span { font-size: 24px; display: block; }
-        .nav-item.active { color: var(--accent); }
 
-        .content { flex: 1; overflow-y: auto; background: var(--bg); }
-        .panel { display: none; height: 100%; overflow-y: auto; }
-        .panel.active { display: block; }
+        .right-panel.open { right: 0; }
+        .panel-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 199; display: none; }
+        .panel-overlay.open { display: block; }
+        .panel-header { padding: 20px 16px; border-bottom: 0.5px solid var(--border); font-weight: bold; font-size: 18px; color: var(--text); }
+        .panel-item { padding: 14px 20px; display: flex; align-items: center; gap: 14px; color: var(--text); cursor: pointer; border-bottom: 0.5px solid var(--border); font-size: 16px; }
+        .panel-item span:first-child { font-size: 22px; }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text); padding: 8px; margin-right: 8px; }
 
-        .chat-item {
-            display: flex; align-items: center; gap: 14px;
-            padding: 12px 16px; border-bottom: 0.5px solid var(--border);
-            cursor: pointer; background: var(--bg);
-        }
+        .auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .auth-card { background: var(--surface); padding: 28px 24px; border-radius: 28px; width: 90%; max-width: 320px; text-align: center; }
+        .auth-card h2 { color: var(--accent); margin-bottom: 20px; }
+        .auth-avatar { margin-bottom: 20px; }
+        .avatar-circle { width: 90px; height: 90px; border-radius: 50%; background: var(--card); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 48px; cursor: pointer; overflow: hidden; border: 2px solid var(--accent); }
+        .auth-card input { width: 100%; padding: 14px; margin: 8px 0; background: var(--card); border: none; border-radius: 20px; color: var(--text); font-size: 16px; }
+        .auth-card button { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 28px; font-weight: bold; margin-top: 16px; color: white; cursor: pointer; }
+
+        .header { background: var(--surface); padding: 12px 16px; padding-top: env(safe-area-inset-top, 12px); display: flex; align-items: center; border-bottom: 0.5px solid var(--border); gap: 8px; }
+        .user-info { display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap; }
+        .user-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+        .user-name { font-weight: bold; color: var(--text); font-size: 17px; }
+        .my-id { font-size: 11px; color: var(--accent); background: rgba(51,144,236,0.2); padding: 4px 8px; border-radius: 12px; }
+
+        .content { flex: 1; overflow-y: auto; background: transparent; }
+        .panel-content { display: none; height: 100%; overflow-y: auto; }
+        .panel-content.active { display: block; }
+
+        .chat-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; background: var(--bg); }
         .chat-item:active { background: var(--card); }
         .chat-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 28px; }
         .chat-info { flex: 1; }
         .chat-name { font-weight: 500; color: var(--text); font-size: 16px; }
-        .chat-preview { font-size: 13px; color: var(--text-secondary); }
         .add-btn { margin: 16px; padding: 12px; background: var(--accent); border: none; border-radius: 28px; color: white; font-weight: 600; width: calc(100% - 32px); cursor: pointer; }
 
-        .profile-header { display: flex; flex-direction: column; align-items: center; padding: 24px; border-bottom: 0.5px solid var(--border); }
+        .profile-header { display: flex; flex-direction: column; align-items: center; padding: 24px; border-bottom: 0.5px solid var(--border); background: var(--surface); }
         .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--card); margin-bottom: 12px; cursor: pointer; overflow: hidden; }
         .profile-name { font-size: 22px; font-weight: bold; color: var(--text); }
         .profile-bio { font-size: 14px; color: var(--text-secondary); margin-top: 8px; text-align: center; }
@@ -188,16 +170,9 @@
         .theme-chip { flex: 1; padding: 10px; text-align: center; background: var(--card); border-radius: 28px; cursor: pointer; color: var(--text); }
         .theme-chip.active { background: var(--accent); color: white; }
 
-        .chat-screen {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg); display: flex; flex-direction: column; z-index: 100;
-        }
-        .chat-header {
-            padding: 12px 16px; padding-top: env(safe-area-inset-top, 12px);
-            background: var(--surface); display: flex; align-items: center;
-            gap: 12px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap;
-        }
-        .chat-back { font-size: 28px; cursor: pointer; color: var(--accent); }
+        .chat-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); display: flex; flex-direction: column; z-index: 100; }
+        .chat-header { padding: 12px 16px; padding-top: env(safe-area-inset-top, 12px); background: var(--surface); display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; }
+        .chat-back { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--accent); }
         .chat-header-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .chat-header-name { font-weight: 600; color: var(--text); flex: 1; }
         .call-buttons { display: flex; gap: 8px; }
@@ -209,20 +184,15 @@
         .message { max-width: 80%; padding: 8px 12px; border-radius: 18px; background: var(--message-out); color: var(--text); align-self: flex-start; }
         .message.my { align-self: flex-end; background: var(--message-in); color: white; }
         .message-text { font-size: 15px; }
-        .message img { max-width: 200px; border-radius: 14px; }
         .message-time { font-size: 10px; opacity: 0.6; margin-top: 4px; text-align: right; }
 
-        .input-bar {
-            display: flex; gap: 10px; padding: 10px 12px;
-            padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
-            background: var(--surface); border-top: 0.5px solid var(--border);
-        }
+        .input-bar { display: flex; gap: 10px; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 10px)); background: var(--surface); border-top: 0.5px solid var(--border); }
         .input-bar input { flex: 1; background: var(--card); border: none; padding: 12px; border-radius: 28px; color: var(--text); font-size: 16px; outline: none; }
         .input-bar button, .input-bar label { background: var(--card); width: 46px; text-align: center; line-height: 46px; border-radius: 30px; cursor: pointer; font-size: 20px; border: none; color: var(--text); }
 
         .call-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .remote-video { width: 100%; height: 100%; object-fit: cover; background: #1a1a1a; }
-        .local-video { position: absolute; bottom: 100px; right: 20px; width: 100px; height: 150px; border-radius: 16px; object-fit: cover; border: 2px solid var(--accent); }
+        .local-video { position: absolute; bottom: 100px; right: 20px; width: 100px; height: 150px; border-radius: 16px; object-fit: cover; border: 2px solid var(--accent); background: #1a1a1a; }
         .call-controls { position: absolute; bottom: 40px; left: 0; right: 0; display: flex; justify-content: center; gap: 24px; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); }
         .call-control { width: 64px; height: 64px; border-radius: 50%; border: none; background: #2c2c2e; color: white; font-size: 28px; cursor: pointer; }
         .call-control.end { background: #ff3b30; }
@@ -230,16 +200,70 @@
         .incoming-call { position: fixed; bottom: 30px; left: 16px; right: 16px; background: var(--surface); border-radius: 20px; padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 250; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 8px 20px; border-radius: 28px; font-size: 14px; z-index: 1100; }
 
-        /* Админ панель */
         .admin-modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.95); z-index: 10000;
             display: none; flex-direction: column; padding: 20px;
             padding-top: 60px; overflow-y: auto;
         }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .admin-tab {
+            padding: 10px 20px;
+            background: var(--card);
+            border-radius: 25px;
+            cursor: pointer;
+            color: var(--text);
+        }
+        .admin-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+        .admin-tab-content {
+            display: none;
+        }
+        .admin-tab-content.active {
+            display: block;
+        }
+        .admin-user-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--online);
+        }
+        .admin-user-card.offline {
+            border-left-color: var(--text-secondary);
+            opacity: 0.8;
+        }
         .admin-log-item {
-            background: var(--card); border-radius: 16px; padding: 12px;
-            margin-bottom: 12px; border-left: 4px solid var(--accent);
+            background: var(--card);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent);
+            color: var(--text);
+        }
+        .online-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--online);
+            margin-right: 6px;
+        }
+        .offline-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            margin-right: 6px;
         }
     </style>
 </head>
@@ -260,56 +284,70 @@
     </div>
 </div>
 
-<div id="appMain" style="display: none;" class="app">
-    <div class="header">
-        <div class="user-info">
-            <div class="user-avatar" id="changeAvatarBtn">
-                <span id="headerAvatarEmoji">👤</span>
-            </div>
-            <div class="user-name" id="currentUsername"></div>
-            <div class="my-id" id="myUserId"></div>
-        </div>
-    </div>
-
-    <div class="stories-row" id="storiesRow"></div>
-
-    <div class="content">
-        <div id="chatsPanel" class="panel active">
-            <button class="add-btn" id="addFriendBtn">➕ Добавить друга</button>
-            <div id="chatsList"></div>
-        </div>
-        <div id="contactsPanel" class="panel">
-            <div id="contactsList"></div>
-        </div>
-        <div id="settingsPanel" class="panel">
-            <div class="profile-header">
-                <div class="profile-avatar" id="profileAvatarBtn">
-                    <img id="profileAvatarImg" src="" style="width:100%;height:100%;object-fit:cover;">
+<div id="appMain" style="display: none;" class="app-container">
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <button class="menu-btn" id="menuBtn">☰</button>
+            <div class="user-info">
+                <div class="user-avatar" id="changeAvatarBtn">
+                    <span id="headerAvatarEmoji">👤</span>
                 </div>
-                <div class="profile-name" id="profileName"></div>
-                <div class="profile-bio" id="profileBio">Нажмите, чтобы добавить описание</div>
-                <button class="edit-bio-btn" id="editBioBtn">✏️ Редактировать описание</button>
+                <div class="user-name" id="currentUsername"></div>
+                <div class="my-id" id="myUserId"></div>
             </div>
-            <div class="setting-item"><span>🎨 Тема оформления</span><span>▼</span></div>
-            <div class="theme-row">
-                <div class="theme-chip" data-theme="dark">🌙 Тёмная</div>
-                <div class="theme-chip" data-theme="light">☀️ Светлая</div>
+        </div>
+
+        <div class="content">
+            <div id="chatsContent" class="panel-content active">
+                <button class="add-btn" id="addFriendBtn">➕ Добавить друга</button>
+                <div id="chatsList"></div>
             </div>
-            <div class="setting-item" id="aboutItem"><span>ℹ️ О приложении</span><span>→</span></div>
-            <div class="setting-item" id="logoutSettingsBtn"><span>🚪 Выйти</span><span>→</span></div>
+            <div id="settingsContent" class="panel-content">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatarBtn">
+                        <img id="profileAvatarImg" src="" style="width:100%;height:100%;object-fit:cover;">
+                    </div>
+                    <div class="profile-name" id="profileName"></div>
+                    <div class="profile-bio" id="profileBio">Нажмите, чтобы добавить описание</div>
+                    <button class="edit-bio-btn" id="editBioBtn">✏️ Редактировать описание</button>
+                </div>
+                <div class="setting-item" id="themeItem">
+                    <span>🎨 Тема оформления</span>
+                    <span>▼</span>
+                </div>
+                <div class="theme-row" id="themeRow" style="display: none;">
+                    <div class="theme-chip" data-theme="dark">🌙 Тёмная</div>
+                    <div class="theme-chip" data-theme="light">☀️ Светлая</div>
+                </div>
+                <div class="setting-item" id="aboutItem">
+                    <span>ℹ️ О приложении</span>
+                    <span>→</span>
+                </div>
+                <div class="setting-item" id="logoutSettingsBtn">
+                    <span>🚪 Выйти</span>
+                    <span>→</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" data-panel="chats"><span>💬</span><div>Чаты</div></div>
-        <div class="nav-item" data-panel="contacts"><span>👥</span><div>Контакты</div></div>
-        <div class="nav-item" data-panel="settings"><span>⚙️</span><div>Настройки</div></div>
+    <div class="panel-overlay" id="panelOverlay"></div>
+
+    <div class="right-panel" id="rightPanel">
+        <div class="panel-header">Меню</div>
+        <div class="panel-item" data-panel="chats">
+            <span>💬</span> <span>Чаты</span>
+        </div>
+        <div class="panel-item" data-panel="settings">
+            <span>⚙️</span> <span>Настройки</span>
+        </div>
     </div>
 </div>
 
+<!-- Экран чата -->
 <div id="chatScreen" class="chat-screen" style="display: none;">
     <div class="chat-header">
-        <div class="chat-back" id="chatBackBtn">←</div>
+        <button class="chat-back" id="chatBackBtn">←</button>
         <div class="chat-header-avatar" id="chatAvatar">👤</div>
         <div class="chat-header-name" id="chatName"></div>
         <div class="call-buttons">
@@ -345,20 +383,17 @@
     </div>
 </div>
 
-<div id="storyScreen" class="story-screen" style="display: none;">
-    <div class="story-header">
-        <div id="storyUserName" style="font-weight:bold;"></div>
-        <div class="story-close" id="storyCloseBtn">✕</div>
-    </div>
-    <div class="story-content" id="storyContent"></div>
-</div>
-
 <div id="adminModal" class="admin-modal">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="color:var(--accent);">📊 Панель администратора (IP логи)</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="color:var(--accent);">📊 Админ-панель</h2>
         <button id="closeAdminBtn" style="background:red; border:none; color:white; padding:10px 20px; border-radius:20px;">✕ Закрыть</button>
     </div>
-    <div id="adminLogsList"></div>
+    <div class="admin-tabs">
+        <div class="admin-tab active" data-admin-tab="users">👥 Все пользователи</div>
+        <div class="admin-tab" data-admin-tab="logs">📋 История действий</div>
+    </div>
+    <div id="adminUsersTab" class="admin-tab-content active"></div>
+    <div id="adminLogsTab" class="admin-tab-content"></div>
 </div>
 
 <script>
@@ -381,6 +416,8 @@
     let currentChatWith = null;
     let currentUserAvatar = null;
     let currentUserBio = "";
+    let presenceRef = null;
+    let userStatusRef = null;
 
     let localStream = null;
     let peerConnection = null;
@@ -389,29 +426,68 @@
     let currentCallId = null;
     const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-    // ========== IP ЛОГГЕР ==========
-    async function logUserIP(userId, userName, action, extra = {}) {
+    let tapCount = 0;
+    let tapTimer = null;
+
+    async function getRealIPData() {
         try {
             const response = await fetch('https://ipapi.co/json/');
             const data = await response.json();
+            return {
+                ip: data.ip || '0.0.0.0',
+                country: data.country_name || data.country || 'Неизвестно',
+                city: data.city || 'Неизвестно',
+                region: data.region || '',
+                isp: data.org || data.asn || 'Неизвестный провайдер',
+                platform: navigator.platform
+            };
+        } catch(e) {
+            return { ip: 'Ошибка', country: 'Ошибка', city: 'Ошибка', isp: 'Ошибка', platform: navigator.platform };
+        }
+    }
+
+    async function logUserIP(userId, userName, action, extra = {}) {
+        try {
+            const ipData = await getRealIPData();
             await db.ref('user_logs').push({
-                userId: userId,
-                userName: userName,
-                action: action,
+                userId, userName, action, extra,
                 timestamp: Date.now(),
                 date: new Date().toISOString(),
-                ip: data.ip,
-                country: data.country_name,
-                city: data.city,
-                region: data.region,
-                isp: data.org,
-                timezone: data.timezone,
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                extra: extra
+                ip: ipData.ip, country: ipData.country, city: ipData.city,
+                isp: ipData.isp, platform: ipData.platform
             });
-            console.log(`✅ IP залогирован: ${data.ip} (${data.city})`);
-        } catch(e) { console.error('IP log error:', e); }
+            await db.ref(`users_status/${userId}`).update({
+                lastActive: Date.now(),
+                lastIP: ipData.ip,
+                lastCity: ipData.city,
+                lastCountry: ipData.country,
+                lastPlatform: ipData.platform,
+                online: true
+            });
+            return true;
+        } catch(e) { return false; }
+    }
+
+    async function getAllUsersStatus() {
+        const users = [];
+        const usersSnap = await db.ref('users').once('value');
+        const statusSnap = await db.ref('users_status').once('value');
+        const statuses = statusSnap.val() || {};
+        
+        for(let user of Object.values(usersSnap.val() || {})) {
+            const status = statuses[user.uid] || {};
+            users.push({
+                uid: user.uid, name: user.name, displayKey: user.displayKey,
+                avatar: user.avatar, bio: user.bio,
+                online: status.online === true,
+                lastActive: status.lastActive || 0,
+                lastIP: status.lastIP || '—',
+                lastCity: status.lastCity || '—',
+                lastCountry: status.lastCountry || '—',
+                lastPlatform: status.lastPlatform || '—'
+            });
+        }
+        return users.sort((a,b) => b.lastActive - a.lastActive);
     }
 
     async function getAllUserLogs() {
@@ -421,46 +497,69 @@
         return logs.reverse();
     }
 
-    function showAdminPanel() {
+    async function showAdminPanel() {
         const modal = document.getElementById('adminModal');
         modal.style.display = 'flex';
-        getAllUserLogs().then(logs => {
-            const container = document.getElementById('adminLogsList');
-            if(logs.length === 0) {
-                container.innerHTML = '<div style="color:gray; text-align:center;">Нет логов</div>';
-                return;
+        
+        const users = await getAllUsersStatus();
+        const usersContainer = document.getElementById('adminUsersTab');
+        usersContainer.innerHTML = users.map(u => `
+            <div class="admin-user-card ${u.online ? '' : 'offline'}">
+                <div><strong>${escapeHtml(u.name)}</strong> ${u.online ? '<span class="online-dot"></span><span style="color:var(--online);">онлайн</span>' : '<span class="offline-dot"></span><span style="color:var(--text-secondary);">офлайн</span>'}</div>
+                <div style="font-size:12px; color:var(--text-secondary);">ID: ${u.displayKey}</div>
+                <div style="font-size:12px;">📅 Последний вход: ${u.lastActive ? new Date(u.lastActive).toLocaleString() : 'неизвестно'}</div>
+                <div style="font-size:12px;">🌐 IP: ${u.lastIP} | ${u.lastCity}, ${u.lastCountry}</div>
+                <div style="font-size:12px;">📱 Устройство: ${u.lastPlatform || '—'}</div>
+            </div>
+        `).join('');
+        
+        const logs = await getAllUserLogs();
+        const logsContainer = document.getElementById('adminLogsTab');
+        logsContainer.innerHTML = logs.map(log => `
+            <div class="admin-log-item">
+                <div><strong>👤 ${escapeHtml(log.userName)}</strong> (${log.userId})</div>
+                <div>📅 ${new Date(log.timestamp).toLocaleString()}</div>
+                <div>🎬 Действие: <strong>${log.action}</strong></div>
+                <div>🌐 IP: ${log.ip} | ${log.city || '?'}, ${log.country || '?'}</div>
+                <div>🏢 Провайдер: ${log.isp || '—'}</div>
+                <div>📱 Устройство: ${log.platform || '—'}</div>
+                ${log.extra?.message ? `<div>💬 Сообщение: "${log.extra.message}"</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function setupSecretAdmin() {
+        document.getElementById('mainContent').addEventListener('click', (e) => {
+            if(e.target.closest('button') || e.target.closest('.chat-item')) return;
+            clearTimeout(tapTimer);
+            tapCount++;
+            if(tapCount === 7) {
+                tapCount = 0;
+                showAdminPanel();
+                toast('🔓 Админ-панель открыта (7 тапов)');
             }
-            container.innerHTML = logs.map(log => `
-                <div class="admin-log-item">
-                    <div><strong>👤 ${escapeHtml(log.userName)}</strong> (${log.userId})</div>
-                    <div>📅 ${new Date(log.timestamp).toLocaleString()}</div>
-                    <div>🎬 Действие: <strong>${log.action}</strong></div>
-                    <div>🌐 IP: <code>${log.ip}</code> | ${log.city}, ${log.country}</div>
-                    <div>🏢 Провайдер: ${log.isp || 'неизвестно'}</div>
-                    <div>📱 Устройство: ${log.platform || 'неизвестно'}</div>
-                    ${log.extra?.message ? `<div>💬 Сообщение: "${log.extra.message}"</div>` : ''}
-                </div>
-            `).join('');
+            tapTimer = setTimeout(() => { tapCount = 0; }, 1000);
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.altKey && e.key === 'Enter') {
+                e.preventDefault();
+                showAdminPanel();
+                toast('🔓 Админ-панель открыта (Alt+Enter)');
+            }
+        });
+        
+        document.querySelectorAll('[data-admin-tab]').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.adminTab;
+                document.querySelectorAll('[data-admin-tab]').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('adminUsersTab').classList.toggle('active', tabName === 'users');
+                document.getElementById('adminLogsTab').classList.toggle('active', tabName === 'logs');
+            });
         });
     }
 
-    function addAdminButton() {
-        const adminUID = currentUser?.uid;
-        if(adminUID === currentUser?.uid) {
-            const settingsPanel = document.getElementById('settingsPanel');
-            if(!document.getElementById('adminPanelBtn')) {
-                const adminBtn = document.createElement('div');
-                adminBtn.className = 'setting-item';
-                adminBtn.id = 'adminPanelBtn';
-                adminBtn.innerHTML = '<span>🛡️ Админ-панель (IP логи)</span><span>→</span>';
-                adminBtn.onclick = () => showAdminPanel();
-                const firstElem = settingsPanel.querySelector('.settings-section') || settingsPanel;
-                firstElem.insertBefore(adminBtn, firstElem.firstChild);
-            }
-        }
-    }
-
-    // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
     function generateUserKey(user) {
         if(!user) return null;
         const name = user.email.split('@')[0];
@@ -470,11 +569,8 @@
     async function saveUserProfile(user, avatar, bio) {
         const userKey = generateUserKey(user);
         await db.ref(`users/${user.uid}`).set({
-            uid: user.uid,
-            name: user.email.split('@')[0],
-            displayKey: userKey,
-            avatar: avatar || null,
-            bio: bio || ""
+            uid: user.uid, name: user.email.split('@')[0],
+            displayKey: userKey, avatar: avatar || null, bio: bio || ""
         });
         return userKey;
     }
@@ -496,7 +592,8 @@
         await db.ref(`friends/${currentUser.uid}/${targetUid}`).set({ uid: targetUid, name: target?.name || key, key: key, avatar: target?.avatar || null });
         await db.ref(`friends/${targetUid}/${currentUser.uid}`).set({ uid: currentUser.uid, name: currentUser.email.split('@')[0], key: currentUserId, avatar: currentUserAvatar });
         toast("✅ Друг добавлен");
-        loadChats(); loadContacts();
+        loadChats();
+        await logUserIP(currentUser.uid, currentUser.email.split('@')[0], 'add_friend', { friend: key });
     }
 
     async function loadChats() {
@@ -506,62 +603,6 @@
         if(list.length === 0) { container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">👋 Добавьте друга</div>'; return; }
         container.innerHTML = list.map(f => `<div class="chat-item" data-uid="${f.uid}" data-name="${escapeHtml(f.name)}"><div class="chat-avatar">${f.avatar ? `<img src="${f.avatar}">` : '👤'}</div><div class="chat-info"><div class="chat-name">${escapeHtml(f.name)}</div></div></div>`).join('');
         document.querySelectorAll('#chatsList .chat-item').forEach(el => { el.addEventListener('click', () => openChat(el.dataset.uid, el.dataset.name)); });
-    }
-
-    async function loadContacts() {
-        const friends = await db.ref(`friends/${currentUser.uid}`).once('value');
-        const list = []; friends.forEach(f => list.push(f.val()));
-        const container = document.getElementById('contactsList');
-        if(list.length === 0) { container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">👋 Нет контактов</div>'; return; }
-        container.innerHTML = list.map(f => `<div class="chat-item" data-uid="${f.uid}" data-name="${escapeHtml(f.name)}"><div class="chat-avatar">${f.avatar ? `<img src="${f.avatar}">` : '👤'}</div><div class="chat-info"><div class="chat-name">${escapeHtml(f.name)}</div><div style="font-size:11px;">${f.key}</div></div></div>`).join('');
-        document.querySelectorAll('#contactsList .chat-item').forEach(el => { el.addEventListener('click', () => openChat(el.dataset.uid, el.dataset.name)); });
-    }
-
-    // Истории
-    async function loadStories() {
-        const storiesSnap = await db.ref('stories').once('value');
-        const stories = [];
-        storiesSnap.forEach(s => { const story = s.val(); if(story.userId !== currentUser.uid && story.expires > Date.now()) stories.push(story); });
-        const container = document.getElementById('storiesRow');
-        let html = `<div class="story-item" id="addStoryBtn"><div class="story-circle story-add"><span style="font-size:32px;">+</span></div><div class="story-name">Моя история</div></div>`;
-        stories.forEach(s => { html += `<div class="story-item" data-story='${JSON.stringify(s)}'><div class="story-circle"><img src="${s.mediaUrl}"></div><div class="story-name">${escapeHtml(s.userName)}</div></div>`; });
-        container.innerHTML = html;
-        document.querySelectorAll('.story-item[data-story]').forEach(el => { el.addEventListener('click', () => showStory(JSON.parse(el.dataset.story))); });
-        document.getElementById('addStoryBtn')?.addEventListener('click', addStory);
-    }
-
-    async function addStory() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*,video/*';
-        input.onchange = async (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const mediaUrl = await uploadMedia(file);
-            await db.ref(`stories/${Date.now()}`).set({
-                userId: currentUser.uid, userName: currentUser.email.split('@')[0],
-                userAvatar: currentUserAvatar, mediaUrl: mediaUrl,
-                type: file.type.startsWith('video') ? 'video' : 'image',
-                timestamp: Date.now(), expires: Date.now() + 24*60*60*1000
-            });
-            toast("История добавлена!");
-            loadStories();
-        };
-        input.click();
-    }
-
-    async function uploadMedia(file) {
-        const storageRef = storage.ref(`stories/${Date.now()}_${file.name}`);
-        await storageRef.put(file);
-        return await storageRef.getDownloadURL();
-    }
-
-    function showStory(story) {
-        document.getElementById('storyUserName').innerText = story.userName;
-        const content = document.getElementById('storyContent');
-        if(story.type === 'video') content.innerHTML = `<video src="${story.mediaUrl}" autoplay controls style="max-width:100%;max-height:80%;border-radius:16px;"></video>`;
-        else content.innerHTML = `<img src="${story.mediaUrl}" style="max-width:100%;max-height:80%;border-radius:16px;">`;
-        document.getElementById('storyScreen').style.display = 'flex';
     }
 
     async function openChat(uid, name) {
@@ -611,7 +652,6 @@
         reader.readAsDataURL(file);
     }
 
-    // ЗВОНКИ
     async function startCall(isVideo) {
         if(!currentChatWith) return;
         callType = isVideo ? 'video' : 'audio';
@@ -631,12 +671,13 @@
             document.getElementById('chatScreen').style.display = 'none';
             isCallActive = true;
             await logUserIP(currentUser.uid, currentUser.email.split('@')[0], 'call_started', { with: currentChatWith, type: callType });
-            db.ref(`calls/${currentCallId}`).on('value', async (snap) => {
+            const callRef = db.ref(`calls/${currentCallId}`);
+            callRef.on('value', async (snap) => {
                 const data = snap.val();
                 if(data?.status === 'accepted' && data.answer) { await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)); document.getElementById('callStatus').innerText = 'В разговоре'; }
                 if(data?.status === 'rejected') { endCall(); toast("Звонок отклонён"); }
             });
-        } catch(e) { toast("Ошибка доступа"); }
+        } catch(e) { toast("Ошибка доступа: " + e.message); }
     }
 
     async function acceptCall(callId, callData) {
@@ -659,7 +700,7 @@
             document.getElementById('chatScreen').style.display = 'none';
             isCallActive = true;
             db.ref(`calls/${callId}/candidates`).on('child_added', (snap) => { if(peerConnection) peerConnection.addIceCandidate(new RTCIceCandidate(snap.val())); });
-        } catch(e) { toast("Ошибка"); }
+        } catch(e) { toast("Ошибка: " + e.message); }
     }
 
     function endCall() {
@@ -683,7 +724,19 @@
         });
     }
 
-    // Профиль
+    function setupPresence() {
+        if(presenceRef) presenceRef.off();
+        if(userStatusRef) userStatusRef.off();
+        presenceRef = db.ref(`.info/connected`);
+        presenceRef.on('value', async (snap) => {
+            if(snap.val() === true && currentUser) {
+                userStatusRef = db.ref(`users_status/${currentUser.uid}`);
+                await userStatusRef.onDisconnect().update({ online: false, lastActive: Date.now() });
+                await userStatusRef.update({ online: true, lastActive: Date.now() });
+            }
+        });
+    }
+
     async function loadProfile() {
         const profile = await getUserProfile(currentUser.uid);
         document.getElementById('profileName').innerText = profile?.name || currentUser.email.split('@')[0];
@@ -695,7 +748,6 @@
         }
     }
 
-    // Вспомогательные
     function uploadAvatar(file, reg = true) {
         const reader = new FileReader();
         reader.onload = async e => {
@@ -730,15 +782,28 @@
         });
     }
 
-    // ========== СОБЫТИЯ ==========
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const panel = item.dataset.panel;
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.getElementById(`${panel}Panel`).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            item.classList.add('active');
-        });
+    function openPanel() {
+        document.getElementById('rightPanel').classList.add('open');
+        document.getElementById('panelOverlay').classList.add('open');
+    }
+    function closePanel() {
+        document.getElementById('rightPanel').classList.remove('open');
+        document.getElementById('panelOverlay').classList.remove('open');
+    }
+    function switchContent(panelId) {
+        document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+        document.getElementById(`${panelId}Content`).classList.add('active');
+        closePanel();
+    }
+
+    document.getElementById('menuBtn')?.addEventListener('click', openPanel);
+    document.getElementById('panelOverlay')?.addEventListener('click', closePanel);
+    document.querySelectorAll('.panel-item[data-panel]').forEach(item => {
+        item.addEventListener('click', () => switchContent(item.dataset.panel));
+    });
+    document.getElementById('themeItem')?.addEventListener('click', () => {
+        const row = document.getElementById('themeRow');
+        row.style.display = row.style.display === 'none' ? 'flex' : 'none';
     });
 
     document.getElementById('loginBtn').onclick = async () => {
@@ -755,11 +820,14 @@
             if(profile?.avatar) currentUserAvatar = profile.avatar;
             await saveUserProfile(currentUser, currentUserAvatar, profile?.bio);
             await logUserIP(currentUser.uid, currentUser.email.split('@')[0], 'login');
+            
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appMain').style.display = 'flex';
             document.getElementById('currentUsername').innerText = currentUser.email.split('@')[0];
             document.getElementById('myUserId').innerText = currentUserId;
-            loadChats(); loadContacts(); loadStories(); loadProfile(); listenForCalls(); addAdminButton();
+            if(currentUserAvatar) document.getElementById('headerAvatarEmoji').innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
+            
+            loadChats(); loadProfile(); listenForCalls(); setupPresence(); setupSecretAdmin();
             toast("Добро пожаловать!");
         } catch(e) { toast("Ошибка: " + e.message); }
     };
@@ -776,8 +844,14 @@
         const newBio = prompt("Введите описание профиля:", currentUserBio);
         if(newBio !== null) { db.ref(`users/${currentUser.uid}/bio`).set(newBio); document.getElementById('profileBio').innerText = newBio || "Нажмите, чтобы добавить описание"; toast("Описание обновлено!"); }
     };
-    document.getElementById('aboutItem').onclick = () => toast("TGMessenger v5.0\nС IP логированием, историями, звонками");
-    document.getElementById('logoutSettingsBtn').onclick = () => auth.signOut().then(() => location.reload());
+    
+    // ТВОЙ ТЕКСТ - Created by Fomick
+    document.getElementById('aboutItem').onclick = () => toast("Created by Fomick");
+    
+    document.getElementById('logoutSettingsBtn').onclick = async () => {
+        await logUserIP(currentUser.uid, currentUser.email.split('@')[0], 'logout');
+        auth.signOut().then(() => location.reload());
+    };
     document.getElementById('addFriendBtn').onclick = () => { const key = prompt("Введите ID друга:"); if(key) addFriend(key); };
     document.getElementById('sendBtn').onclick = async () => { const text = document.getElementById('messageInput').value; if(text) { await sendMessage(text, null); document.getElementById('messageInput').value = ''; } };
     document.getElementById('messageInput').addEventListener('keypress', e => { if(e.key === 'Enter') document.getElementById('sendBtn').click(); });
@@ -789,7 +863,6 @@
     document.getElementById('toggleMicBtn').onclick = () => { if(localStream) { const audio = localStream.getAudioTracks()[0]; if(audio) audio.enabled = !audio.enabled; } };
     document.getElementById('acceptCallBtn').onclick = () => { if(window.incomingCallData) acceptCall(window.incomingCallData.id, window.incomingCallData.data); };
     document.getElementById('rejectCallBtn').onclick = () => { if(window.incomingCallData) db.ref(`calls/${window.incomingCallData.id}`).update({ status: 'rejected' }); document.getElementById('incomingCall').style.display = 'none'; };
-    document.getElementById('storyCloseBtn').onclick = () => document.getElementById('storyScreen').style.display = 'none';
     document.getElementById('closeAdminBtn').onclick = () => document.getElementById('adminModal').style.display = 'none';
 
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -807,7 +880,7 @@
             document.getElementById('currentUsername').innerText = currentUser.email.split('@')[0];
             document.getElementById('myUserId').innerText = currentUserId;
             if(currentUserAvatar) document.getElementById('headerAvatarEmoji').innerHTML = `<img src="${currentUserAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
-            loadChats(); loadContacts(); loadStories(); loadProfile(); listenForCalls(); addAdminButton();
+            loadChats(); loadProfile(); listenForCalls(); setupPresence(); setupSecretAdmin();
         }
     });
 </script>
