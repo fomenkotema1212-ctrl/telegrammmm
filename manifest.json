@@ -2,10 +2,11 @@
   "name": "TGMessenger",
   "short_name": "TGMsg",
   "description": "Мессенджер с чатами, фото и кружками",
-  "start_url": "/",
+  "start_url": "/telegrammmm/",
+  "scope": "/telegrammmm/",
   "display": "standalone",
-  "theme_color": "#00c3a2",
-  "background_color": "#1a1a24",
+  "theme_color": "#3390ec",
+  "background_color": "#0f0f12",
   "icons": [
     {
       "src": "icon-192.png",
